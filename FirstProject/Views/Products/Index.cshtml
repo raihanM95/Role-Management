@@ -1,0 +1,138 @@
+﻿@model FirstProject.ViewModels.ProductViewModel
+@using PagedList.Mvc;
+
+@{
+    ViewBag.Title = "Products";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h4 class="h-position">Products</h4>
+<hr class="hr-design">
+<p>
+    <button class="btn btn-primary" onclick="location.href='@Url.Action("Create", "Products")'"><span class="fa fa-plus"></span>  Add Product</button>
+</p>
+
+<table class="table table-striped">
+    <tr>
+        <th scope="col">
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model.Products)
+    {
+        <tr>
+            <td scope="row">
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+
+            <td>
+                @Html.ActionLink(" Edit", "Edit", new { id = item.ID }, new { @class = "fa fa-pencil-square-o btn btn-primary btn-sm" }) |
+                <input onclick="GetData(@item.ID)" type="submit" value="Details" class="fa fa-info-circle btn btn-info btn-sm" data-toggle="modal" data-target="#DetailsModal" /> |
+                @*@Html.ActionLink(" Details", "Details", new { id = item.ID }, new { @class = "fa fa-info-circle btn btn-info btn-sm", onclick = "GetId(@item.ID)" }) |*@
+                @Html.ActionLink(" Delete", "Delete", new { id = item.ID }, new { @class = "fa fa-trash-o btn btn-danger btn-sm", onclick = "return confirm('Are sure wants to delete?');" })
+            </td>
+        </tr>
+    }
+
+</table>
+<div></div>
+@*Page @(Model.PageCount < Model.CurrentPageIndex ? 0: Model.CurrentPageIndex/@Model.PageCount)*@
+<div>
+    @Html.PagedListPager(Model.Products, page => Url.Action("Index", new { page = page }))
+</div>
+
+<center>
+    @if (TempData["Message"] != null)
+    {
+        <script type="text/javascript">
+            window.onload = function () {
+                alert("@TempData["Message"]");
+            };
+        </script>
+    }
+</center>
+
+<script>
+    var id;
+    function GetData(e) {
+        id = e;
+
+        $.ajax({
+            url: "/products/clientdetails",
+            type: "POST",
+            data: { id: id },
+            success: function (model) {
+
+                $("#clientTable").empty();
+
+                var tr;
+                //Append each row to html table
+                for (var i = 0; i < model.length; i++) {
+                    tr = $('<tr/>');
+                    tr.append("<td>" + model[i].Name + "</td>");
+
+                    $("#clientTable").append(tr);
+                }
+            }
+        })
+
+        $.ajax({
+            url: "/products/supportdetails",
+            type: "POST",
+            data: { id: id },
+            success: function (model) {
+
+                $("#supportTable").empty();
+
+                var tr;
+                //Append each row to html table
+                for (var i = 0; i < model.length; i++) {
+                    tr = $('<tr/>');
+                    tr.append("<td>" + model[i].Name + "</td>");
+
+                    $("#supportTable").append(tr);
+                }
+            }
+        })
+    }
+</script>
+
+<!-- Modal -->
+<div class="modal fade" id="DetailsModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Product Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="Seen()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered table-condensed table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th>Client name</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientTable">
+                    </tbody>
+                </table>
+                <table class="table table-bordered table-condensed table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th>Support name</th>
+                        </tr>
+                    </thead>
+                    <tbody id="supportTable">
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-dark" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,141 @@
+﻿@model FirstProject.ViewModels.TokenViewModel
+@using PagedList.Mvc;
+
+@{
+    ViewBag.Title = "Tokens";
+    Layout = "~/Views/Shared/_SupportLayout.cshtml";
+}
+
+<h4 class="h-position">Tokens</h4>
+<hr class="hr-design">
+
+<table class="table table-striped">
+    <tr>
+        <th scope="col">
+            Product name
+        </th>
+        <th scope="col">
+            Complain description
+        </th>
+        <th scope="col">
+            Solved description
+        </th>
+        <th scope="col">
+            Type
+        </th>
+        <th scope="col">
+            Status
+        </th>
+
+    </tr>
+
+    @foreach (var item in Model.Tokens)
+    {
+        <tr>
+            <td scope="row">
+                @Html.DisplayFor(modelItem => item.Product.Name)
+            </td>
+            <td scope="row">
+                @Html.DisplayFor(modelItem => item.ComplainDescription)
+            </td>
+            <td scope="row">
+                @Html.DisplayFor(modelItem => item.SolvedDescription)
+            </td>
+            @if (item.Type == false)
+            {
+                <td scope="row">
+                    New
+                </td>
+            }
+            @if (item.Type == true)
+            {
+                <td scope="row">
+                    Seen
+                </td>
+            }
+            @if (item.Type == false || item.Status == false)
+            {
+                <td scope="row">
+                    <input onclick="GetId('@item.ID', '@item.ComplainDate')" type="submit" value="View" class="btn btn-info" data-toggle="modal" data-target="#SolveModal" />
+                </td>
+            }
+            @if (item.Status == true)
+            {
+                <td scope="row">
+                    Solved
+                </td>
+            }
+
+        </tr>
+    }
+
+</table>
+<div></div>
+@*Page @(Model.PageCount < Model.CurrentPageIndex ? 0: Model.CurrentPageIndex/@Model.PageCount)*@
+<div>
+    @Html.PagedListPager(Model.Tokens, page => Url.Action("SupportToken", new { page = page }))
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="SolveModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Solve Description</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="Seen()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("Solve", "Tokens", FormMethod.Post, new { @encType = "multipart/form-data" }))
+            {
+                <div class="modal-body">
+
+                    @Html.HiddenFor(s => s.Token.ID, new { @id = "TId" })
+
+                    <div class="form-group">
+                        <label>Complain date:</label>
+
+                        @Html.TextBoxFor(s => s.Token.ComplainDate, new { @id = "cDate", @readonly = true })
+                    </div>
+                    <div class="form-group">
+                        <label>Solved description</label>
+
+                        @Html.TextAreaFor(s => s.Token.SolvedDescription, new { @class = "form-control", required = "Enter description" })
+                        @Html.ValidationMessageFor(s => s.Token.SolvedDescription, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="Seen()">Close</button>
+                    <button class="btn btn-success" type="submit" onclick="Seen()">Solved</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    var id;
+    var complainDate;
+    function GetId(e, date) {
+        id = e;
+        complainDate = date;
+        $("#TId").val(id);
+        $("#cDate").val(complainDate);
+    }
+
+    function Seen() {
+        $.ajax({
+            url: "/tokens/seen",
+            type: "POST",
+            data: { id: id },
+
+            success: function (results) {
+                location.reload(true);
+            },
+
+            error: function (e) {
+                alert("Fail");
+            }
+        });
+    };
+</script>

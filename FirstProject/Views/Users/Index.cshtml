@@ -1,0 +1,65 @@
+﻿@model FirstProject.ViewModels.UserViewModel
+@using PagedList.Mvc;
+
+@{
+    ViewBag.Title = "Users";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h4 class="h-position">Users</h4>
+<hr class="hr-design">
+<p>
+    <button class="btn btn-primary" onclick="location.href='@Url.Action("Create", "Users")'"><span class="fa fa-plus"></span>  Add User</button>
+</p>
+
+<table class="table table-striped">
+    <tr>
+        <th scope="col">
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        <th scope="col">
+            @Html.DisplayNameFor(model => model.UserType)
+        </th>
+        <th scope="col">
+            @Html.DisplayNameFor(model => model.UserName)
+        </th>
+
+        <th scope="col"></th>
+    </tr>
+
+    @foreach (var item in Model.Users)
+    {
+        <tr>
+            <td scope="row">
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserType)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserName)
+            </td>
+
+            <td>
+                @Html.ActionLink(" Details", "Details", new { id = item.ID }, new { @class = "fa fa-info btn btn-info btn-sm" }) |
+                @Html.ActionLink(" Delete", "Delete", new { id = item.ID }, new { @class = "fa fa-trash-o btn btn-danger btn-sm", onclick = "return confirm('Are sure wants to delete?');" })
+            </td>
+        </tr>
+    }
+</table>
+<div></div>
+@*Page @(Model.PageCount < Model.CurrentPageIndex ? 0: Model.CurrentPageIndex/@Model.PageCount)*@
+<div>
+    @Html.PagedListPager(Model.Users, page=> Url.Action("Index", new { page=page}))
+</div>
+
+<center>
+    @if (TempData["Message"] != null)
+    {
+        <script type="text/javascript">
+            window.onload = function () {
+                alert("@TempData["Message"]");
+            };
+        </script>
+    }
+</center>

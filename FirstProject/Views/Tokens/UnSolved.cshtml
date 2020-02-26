@@ -1,0 +1,45 @@
+﻿@model FirstProject.ViewModels.TokenViewModel
+@using PagedList.Mvc;
+
+@{
+    ViewBag.Title = "Unsolved Tokens";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h4 class="h-position">Unsolved Tokens</h4>
+<hr class="hr-design">
+
+<table class="table table-striped">
+    <tr>
+        <th scope="col">
+            @Html.DisplayNameFor(model => model.ProductId)
+        </th>
+        <th scope="col">
+            @Html.DisplayNameFor(model => model.ComplainDescription)
+        </th>
+
+    </tr>
+
+    @foreach (var item in Model.Tokens)
+    {
+        <tr>
+            @if (item.Type == true && item.Status == false)
+            {
+                <td scope="row">
+                    @Html.DisplayFor(modelItem => item.Product.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ComplainDescription)
+                </td>
+
+            }
+
+        </tr>
+    }
+
+</table>
+<div></div>
+@*Page @(Model.PageCount < Model.CurrentPageIndex ? 0: Model.CurrentPageIndex/@Model.PageCount)*@
+<div>
+    @Html.PagedListPager(Model.Tokens, page => Url.Action("UnSolved", new { page = page }))
+</div>

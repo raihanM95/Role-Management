@@ -1,0 +1,158 @@
+﻿@model FirstProject.ViewModels.ProductManageViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4 class="h-position">Assign Product</h4>
+        <hr class="hr-design">
+
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <div class="panel panel-default">
+            <div class="panel-heading">Details</div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="control-label col-md-3">Client name</label>
+                            @*@Html.LabelFor(model => model.ClientId, "ClientId", htmlAttributes: new { @class = "control-label col-md-3" })*@
+                            <div class="col-md-9">
+                                @Html.DropDownList("ClientId", null, "---Select---", htmlAttributes: new { @id = "client", @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.ClientId, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-3">Support name</label>
+                            @*@Html.LabelFor(model => model.SupportId, "SupportId", htmlAttributes: new { @class = "control-label col-md-3" })*@
+                            <div class="col-md-9">
+                                @Html.DropDownList("SupportId", null, "---Select---", htmlAttributes: new { @id = "support", @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.SupportId, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="control-label col-md-3">Product name</label>
+                            @*@Html.LabelFor(model => model.ProductId, "ProductId", htmlAttributes: new { @class = "control-label col-md-3" })*@
+                            <div class="col-md-9">
+                                @Html.DropDownList("ProductId", null, "---Select---", htmlAttributes: new { @id = "product", @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.ProductId, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-offset-8 col-md-4">
+                                <input type="button" id="addButton" value="Add" class="btn btn-success" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div>
+                <table class="table table-bordered table-striped table-hover table-responsive">
+                    <thead>
+                        <tr>
+                            <th>SL</th>
+                            <th>
+                                Client
+                            </th>
+                            <th>
+                                Support
+                            </th>
+                            <th>
+                                Product
+                            </th>
+                            <th>Action</th>
+                        </tr>
+
+                    </thead>
+                    <tbody id="detailsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 col-md-offset-11 col-md-1">
+                <input type="submit" id="detailsSubmitButton" value="Submit" class="btn btn-primary" />
+            </div>
+
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+
+    <script>
+        // Table Scripts
+        $("#addButton").click(function () {
+            addDetailsInList();
+        });
+
+        function addDetailsInList() {
+            var getDetails = getDetailsFromTextBox();
+            var index = $("#detailsTableBody").children("tr").length;
+            var sl = index;
+            var indexCell = "<td style='display:none'><input type='hidden'" + index + "' name='OrderDetails.index' value='" + index + "' /></td>";
+            var slCell = "<td>" + (++sl) + "</td>";
+            var clientCell = "<td style='display:none'><input type='hidden'" + index + "' name='ClientProducts[" + index + "].UsersId' value='" + getDetails.ClientId + "'/></td>";
+            var clientNameCell = "<td>" + getDetails.ClientName + "</td>";
+            var supportCell = "<td style='display:none'><input type='hidden'" + index + "' name='SupportProducts[" + index + "].UsersId' value='" + getDetails.SupportId + "'/></td>";
+            var supportNameCell = "<td>" + getDetails.SupportName + "</td>";
+            var clientProductCell = "<td style='display:none'><input type='hidden'" + index + "' name='ClientProducts[" + index + "].ProductId' value='" + getDetails.ProductId + "'/></td>";
+            var supportProductCell = "<td style='display:none'><input type='hidden'" + index + "' name='SupportProducts[" + index + "].ProductId' value='" + getDetails.ProductId + "'/></td>";
+            var productNameCell = "<td>" + getDetails.ProductName + "</td>";
+
+            var deleteCell = "<td><a id='deleteCell' class='btn btn-danger'><i class='glyphicon glyphicon-trash'></i></a></td>";
+            var createRow = "<tr>" + indexCell + slCell + clientCell + clientNameCell + supportCell + supportNameCell + clientProductCell + supportProductCell + productNameCell + deleteCell + "</tr>";
+            $("#detailsTableBody").append(createRow);
+            $("#detailsSubmitButton").prop('disabled', false);
+        }
+
+        function getDetailsFromTextBox() {
+            var clientName = $("#client option:selected").text();
+            var clientId = $("#client").val();
+            var supportName = $("#support option:selected").text();
+            var supportId = $("#support").val();
+            var productName = $("#product option:selected").text();
+            var productId = $("#product").val();
+
+            var details = {
+                "ClientName": clientName,
+                "ClientId": clientId,
+                "SupportName": supportName,
+                "SupportId": supportId,
+                "ProductName": productName,
+                "ProductId": productId,
+            }
+            return details;
+        }
+
+        // Table Action Scripts
+        $(".table tbody").on('click', '#deleteCell', function () {
+            $(this).closest('tr').remove();
+            // Check Exist Table Row
+            var row = $("#detailsTableBody").children('tr').length;
+            if (row > 0) {
+                $("#detailsSubmitButton").prop('disabled', false);
+            }
+            else {
+                $("#detailsSubmitButton").prop('disabled', true);
+            }
+        })
+    </script>
+}

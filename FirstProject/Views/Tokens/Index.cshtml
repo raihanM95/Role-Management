@@ -1,0 +1,55 @@
+﻿@model FirstProject.ViewModels.TokenViewModel
+@using PagedList.Mvc;
+
+@{
+    ViewBag.Title = "Tokens";
+    Layout = "~/Views/Shared/_ClientLayout.cshtml";
+}
+
+<h4 class="h-position">Tokens</h4>
+<hr class="hr-design">
+<p>
+    <button class="btn btn-primary" onclick="location.href='@Url.Action("Create", "Tokens")'"><span class="fa fa-plus"></span>  Create Token</button>
+</p>
+
+<table class="table table-striped">
+    <tr>
+        <th scope="col">
+            @Html.DisplayNameFor(model => model.ProductId)
+        </th>
+        <th scope="col">
+            @Html.DisplayNameFor(model => model.ComplainDescription)
+        </th>
+        <th scope="col">
+            @Html.DisplayNameFor(model => model.SolvedDescription)
+        </th>
+
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model.Tokens)
+    {
+        <tr>
+            <td scope="row">
+                @Html.DisplayFor(modelItem => item.Product.Name)
+            </td>
+            <td scope="row">
+                @Html.DisplayFor(modelItem => item.ComplainDescription)
+            </td>
+            <td scope="row">
+                @Html.DisplayFor(modelItem => item.SolvedDescription)
+            </td>
+
+            <td>
+
+                @Html.ActionLink(" Delete", "Delete", new { id = item.ID }, new { @class = "fa fa-trash-o btn btn-danger btn-sm", onclick = "return confirm('Are sure wants to delete?');" })
+            </td>
+        </tr>
+    }
+
+</table>
+<div></div>
+@*Page @(Model.PageCount < Model.CurrentPageIndex ? 0: Model.CurrentPageIndex/@Model.PageCount)*@
+<div>
+    @Html.PagedListPager(Model.Tokens, page => Url.Action("Index", new { page = page }))
+</div>
